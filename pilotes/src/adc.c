@@ -1,50 +1,39 @@
-#include  "adc.h"
+#include "stm32f10x.h"
+#include "adc.h"
 
-void Init_ADC_Single_Conv(ADC_TypeDef * ADC){
-	
+ADC_Handler adc_handler[2];
+
+void Init_ADC(ADC_TypeDef* ADC, u8 priority, ADC_Handler handler) {
+	CLOCK_Configure();
+
 	if (ADC == ADC1) {
-		RCC->APB2ENR |= RCC_APB2ENR_ADC1EN ;
+		RCC->APB2ENR |= RCC_APB2ENR_ADC1EN;
+		adc_handler[0] = handler;
+	} else if (ADC == ADC2) {
+		RCC->APB2ENR |= RCC_APB2ENR_ADC2EN;
+		adc_handler[1] = handler;
 	}
-	else if (ADC == ADC2) {
-		RCC->APB2ENR |= RCC_APB2ENR_ADC2EN ;
-	}
-
-	// Mise à 0 de CONT et activation ADON
-	ADC->CR2 &= ~ ADC_CR2_CONT ;
-	ADC->CR2 |= ADC_CR2_ADON ;
-	ADC->SQR1 &= ~ADC_SQR1_L ; 
+	
+	ADC->CR2 |= ADC_CR2_ADON; // power on
+	ADC->CR2 &= ~ADC_CR2_ALIGN; // align right
+	ADC->CR1 |= ADC_CR1_EOCIE;
+	NVIC->ISER[0] |= NVIC_ISER_SETENA_18;
+	NVIC->IP[18] = priority << 4;
+	
+	ADC->CR2 &= ~ADC_CR2_CONT; // single conversion
+	ADC->SQR1 &= ~ADC_SQR1_L; // 1 conversion
+	ADC->SQR3 &= ~ADC_SQR3_SQ1; // channel 0
 }
 
-
-u16 ADC_read_data(ADC_TypeDef * ADC, char channel){
-
-	u16 data = 0 ;
-	
-	// Mise de longueur à 1 pour single conv
-	ADC->SQR1 &= ~ ADC_SQR1_L ;
-	ADC->SQR1 |= ADC_SQR1_L_0 ;
-	
-	// Mise à 0 de la 1ère séquence 
-	ADC->SQR3 &= ~ ADC_SQR3_SQ1 ; 
-	// Set de channel dans la 1ère séquence
-	ADC->SQR3 |= channel ;
-
-	// On lance la conversion
-	ADC->CR2 |= ADC_CR2_ADON ;
-
-	// Tant que End Of Conversion n'est pas levé 
-	while (~ (ADC->SR | ADC_SR_EOC) ) {}
-		
-	// On récupère la data  
-	data = ADC->DR | ADC_DR_DATA ; 
-	
-	// Mise à 0 de EOC et STRT
-	ADC->SR &= ~ (ADC_SR_STRT | ADC_SR_EOC) ;
-		
-	return data ; 
+void ADC_Start(ADC_TypeDef* ADC) {
+	ADC->CR2 |= ADC_CR2_ADON;
 }  
 
-
-
-
-
+void ADC1_2_IRQHandler(void) {
+	if (ADC1->SR & ADC_SR_EOC) {
+		adc_handler[0](ADC1->DR);
+	}
+	if (ADC2->SR & ADC_SR_EOC) {
+		adc_handler[1](ADC2->DR);
+	}
+}
