@@ -19,7 +19,11 @@ u32 Timer_1234_Init(TIM_TypeDef *Timer, u32 Frequence ) {
 	
 	u32 Clock, psc, arr , freq_interne;
 	
-   Timer->CR1 |= TIM_CR1_CEN ;
+  Timer->CR1 |= TIM_CR1_CEN ;
+	
+	if (Timer == TIM1){
+		Timer->BDTR |= TIM_BDTR_MOE;
+	}
 	
 	Clock = CLOCK_GetTIMCLK(Timer) ; 
 	// Ex : 72 000 000 / 125 = 576 000 
