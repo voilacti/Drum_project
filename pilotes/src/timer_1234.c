@@ -1,86 +1,108 @@
-//__________________________________________________________
-// BINOME : LANO - DESPLATS
-// ETAT : 
-//__________________________________________________________
+#include "Timer_1234.h"
 
-//____ registres de périphériques du stm_32
-#include "stm32f10x.h"
-#include "clock.h"
-#include "gpio.h"
-#include "timer_1234.h"
+void (* ptr_fonc1) (void) ;
+void (* ptr_fonc2) (void) ;
+void (* ptr_fonc3) (void) ;
+void (* ptr_fonc4) (void) ;
 
-Timer_Handler timer_handler[4];
-
-/**
-* Configure la routine d'interruption d'un timer
-* @param timer Pointeur vers le jeu de registres (de type TIM_TypeDef ) du
+/** 
+* Configure les Timers 1, 2, 3 et 4
+* @param Timer Pointeur vers le jeu de registres (de type 
+TIM_TypeDef
+ ) du 
 * timer considéré
-* @param priority Niveau de priorite´ de l'interruption
-* @param IT_function Pointeur sur la fonction qui sera exe´cute´e dans le routine d'interruption
+* @param Duree_us Intervalle de temps exprimé en µs entre
+* deux débordements successifs
+* @return Le durée véritable qui a été configurée
 **/
-void Timer_Active_IT(TIM_TypeDef *timer, u8 priority, Timer_Handler handler) {
-    if (timer == TIM1){
-		NVIC->ISER[0] |= NVIC_ISER_SETENA_25;
-		NVIC->IP[25] = priority << 4;
-        timer_handler[0] = handler;
-    } else if (timer == TIM2){
-		NVIC->ISER[0] |= NVIC_ISER_SETENA_28;
-		NVIC->IP[28] = priority << 4;
-        timer_handler[1] = handler;
-	} else if (timer == TIM3){
-		NVIC->ISER[0] |= NVIC_ISER_SETENA_29;
-		NVIC->IP[29] = priority << 4;
-        timer_handler[2] = handler;
-	} else if (timer == TIM4){
-		NVIC->ISER[0] |= NVIC_ISER_SETENA_30;
-		NVIC->IP[30] = priority << 4;
-        timer_handler[3] = handler;
-	}
-    
-	timer->DIER |= TIM_DIER_UIE;
-}
-
-u32 Timer_1234_Init(TIM_TypeDef *timer, u32 duree_us) {
-	CLOCK_Configure();
-    
-	//Activer les clocks
-    if (timer == TIM1){
-		RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
-    } else if (timer == TIM2){
-		RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
-	} else if (timer == TIM3){
-		RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
-	} else if (timer == TIM4){
-		RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;
-	}
-    
-	//enable clock dans AP bridge 1
-	timer->CR1 |= TIM_CR1_CEN | TIM_CR1_DIR; //Chip Enable du timer et le mettre en décomptage
-
-	// CLOCK_GetTIMCLK(timer)*(duree_us/1000000) //permet de récupérer la fréq du clock AH
-	u32 nb_ticks = ((CLOCK_GetTIMCLK(timer)/1000000) * duree_us); //On divise par 1000000 car la durée est en us
-	timer->PSC = nb_ticks/(1 << 16); //valeur max d'ARR : 65536	
-	timer->ARR = nb_ticks/(timer->PSC+1); 
+u32 Timer_1234_Init(TIM_TypeDef *Timer, u32 Frequence ) {
 	
-	return timer->ARR*(timer->PSC+1); //durée véritablement configurée
+	u32 Clock, psc, arr , freq_interne;
+	
+  Timer->CR1 |= TIM_CR1_CEN ;
+	
+	if (Timer == TIM1){
+		Timer->BDTR |= TIM_BDTR_MOE;
+	}
+	
+	Clock = CLOCK_GetTIMCLK(Timer) ; 
+	// Ex : 72 000 000 / 125 = 576 000 
+	// 576 000 / 65 536 = 8,7 = 8 en entier
+	// donc on veut 9, car avec 8 on aurait pas assez
+	// Si ça tombe pas pile, alors on ajoute 1 
+	// car en dessous c'est pas assez ! 
+   freq_interne = Clock/Frequence;
+   psc = freq_interne/65536;
+   if ( (freq_interne % 65536) != 0) 
+   {
+         psc+= 1 ;
+   }
+   
+   arr = Clock / Frequence / (psc) ;
+  
+   Timer->PSC = psc - 1 ; 
+   Timer->ARR = arr - 1 ;
+
+   return Clock / (psc*arr)  ; 
 }
 
-void TIM1_IRQHandler(void) {
-	timer_handler[0]();
-	TIM1->SR &= ~TIM_SR_UIF;
+/** 
+* Configure la routine d'interruption d'un Timer
+* @param Timer Pointeur vers le jeu de registres (de type 
+TIM_TypeDef
+ ) du 
+* timer considéré
+* @param Priority Niveau de priorité de l'interruption
+* @param IT_function Pointeur sur la fonction qui sera exécutée dans le routine
+d'interruption
+**/
+void Timer_Active_IT(TIM_TypeDef *Timer, u8 Priority, void (*IT_function) (void)) {
+  
+   
+   if (Timer == TIM2) 
+      {
+         NVIC->ISER[0] |= NVIC_ISER_SETENA_28 ;
+         NVIC->IP[28] |= Priority << 4 ;
+				 ptr_fonc2 = IT_function ;
+      }
+   else if (Timer == TIM3) 
+      { 
+         NVIC->ISER[0] |= NVIC_ISER_SETENA_29 ;
+         NVIC->IP[29] |= Priority << 4 ;
+				 ptr_fonc3 = IT_function ;
+      }
+   else if (Timer == TIM4) 
+      {
+         NVIC->ISER[0] |= NVIC_ISER_SETENA_30 ;
+         NVIC->IP[30] |= Priority << 4 ;
+				 ptr_fonc4 = IT_function ;
+      }
+   else 
+      {
+         NVIC->ISER[0] |= NVIC_ISER_SETENA_25 ;
+         NVIC->IP[25] |= Priority << 4 ;
+				 ptr_fonc1 = IT_function ;
+      }
+      Timer->DIER |= TIM_DIER_UIE ;
 }
 
-void TIM2_IRQHandler(void) {
-	timer_handler[1]();
-	TIM2->SR &= ~TIM_SR_UIF;
+
+void TIM1_IRQHandler (void) {
+   ptr_fonc1() ;
+   TIM1->SR &= ~(TIM_SR_UIF) ;
 }
 
-void TIM3_IRQHandler(void) {
-	timer_handler[2]();
-	TIM3->SR &= ~TIM_SR_UIF;
+void TIM2_IRQHandler (void) {
+   ptr_fonc2() ;
+   TIM2->SR &= ~(TIM_SR_UIF) ;
 }
 
-void TIM4_IRQHandler(void) {
-	timer_handler[3]();
-	TIM4->SR &= ~TIM_SR_UIF;
+void TIM3_IRQHandler (void) {
+   ptr_fonc3() ;
+   TIM3->SR &= ~(TIM_SR_UIF) ;
+}
+
+void TIM4_IRQHandler (void) {
+   ptr_fonc4() ;
+   TIM4->SR &= ~(TIM_SR_UIF) ;
 }

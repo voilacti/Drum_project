@@ -1,129 +1,59 @@
-// TRAVAIL DE LOIS LANO et RAMA DESPLATS
-// gpio.h
+#include "gpio.h" 
 
-#include "gpio.h"
 
-void Port_IO_Init(GPIO_TypeDef* port) {
-    if (port == GPIOA) {
-        RCC->APB2ENR = RCC_APB2ENR_IOPAEN;
-    } else if (port == GPIOB) {
-        RCC->APB2ENR = RCC_APB2ENR_IOPBEN;
-    } else if (port == GPIOC) {
-        RCC->APB2ENR = RCC_APB2ENR_IOPCEN;
-    } else if (port == GPIOD) {
-        RCC->APB2ENR = RCC_APB2ENR_IOPDEN;
-    }
-}
-
-void Port_IO_Init_Output(GPIO_TypeDef* port, u8 broche) {
-	int bit = (broche%8)*4;
-	Port_IO_Init(port);
-	
-	if (broche < 8) {
-		port->CRL &= ~(0xF << bit);
-		port->CRL |= 1 << bit;
-	} else {
-		port->CRH &= ~(0xF << bit);
-		port->CRH |= 1 << bit;
+char Port_IO_Init_Output( GPIO_TypeDef * Port, u8 Broche) {	 
+	if (Broche <= 7) {
+		Port->CRL &=  ~(0xF << Broche*4) ;
+		Port->CRL |= (0b0100 << Broche*4) ; 	
 	}
-}
-
-void Port_IO_Init_Input(GPIO_TypeDef* port, u8 broche) {
-	int bit = (broche%8)*4;
-	Port_IO_Init(port);
-	
-	if (broche < 8) {
-		port->CRH &= ~(0xF << bit);
-		port->CRL |= 1 << (bit+2);
-	} else {
-		port->CRH &= ~(0xF << bit);
-		port->CRH |= 1 << (bit+2);
+	else {
+		Broche -= 8 ;
+		Port->CRH &=  ~(0xF << (Broche*4)) ;
+		Port->CRH |=  (0b0100 << (Broche*4)) ; 	
 	}
+	return 0 ;
 }
 
-void Port_IO_Set(GPIO_TypeDef* port, u8 broche) {
-	port->BSRR = 1 << broche;
-}
-
-void Port_IO_Reset(GPIO_TypeDef* port, u8 broche) {
-	port->BRR = 1 << broche;
-}
-
-void Port_IO_Blink(GPIO_TypeDef* port, u8 broche) {
-	port->ODR ^= 1 << broche;
-}
-
-unsigned int Port_IO_Read(GPIO_TypeDef* port, u8 broche) {
-	return (port->IDR >> broche) & 1;
+char Port_IO_Init_Input( GPIO_TypeDef * Port, u8 Broche) {
+	if (Broche <= 7) {
+		Port->CRL &= ~(0xF << (Broche*4)) ;
+		Port->CRL |= (0b0001 << (Broche*4)) ; 	
+	}
+	else {
+		Broche-= 8 ;
+		Port->CRH &= ~(0xF << (Broche*4)) ;
+		Port->CRH |= (0b0001 << (Broche*4)) ; 	
+	}
+	return 0 ;
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#include "gpio.h"
-
-void Port_IO_Init(GPIO_TypeDef* port){
-    if(port == GPIOA)
-        RCC->APB2ENR |= RCC_APB2_ENR_IOPAEN;
-    else if(port == GPBIOB)
-        RCC->APB2ENR |= RCC_APB2_ENR_IOPBEN;
-    else
-        RCC->APB2ENR |= RCC_APB2_ENR_IOPCEN;
+char Port_IO_Init_Alter_PP(GPIO_TypeDef * Port, u8 Broche){
+		if (Broche <= 7) {
+		Port->CRL &= ~(0xF << (Broche*4)) ;
+		Port->CRL |= (0b1001 << (Broche*4)) ; 	
+	}
+	else {
+		Broche-= 8 ;
+		Port->CRH &= ~(0xF << (Broche*4)) ;
+		Port->CRH |= 0b1001 << (Broche*4) ; 	
+	}
+	return 0 ;
 }
 
-void Port_IO_Init_Output(GPIO_TypeDef* port, u8 broche){
-    int bit = (broche%8)*4; //modulo les 8 bits par CRL/CRH *4 bits si bit 1
-    if(bit < 8){
-        port->CRL &= ~(0xF) << bit; //car 0xF = 1111
-        port->CRL |= (1<<bit);
-    }else {
-        port->CRH &= ~(0xF) << bit; //car 0xF = 1111
-        port->CRH |= (1<<bit);
-    }
-}
-        
-void Port_IO_Init_Input(GPIO_TypeDef* port, u8 broche){
-    int bit = (broche%8)*4;
-    if (bit<8){
-        port->CRL &= ~(0xF) << bit;
-        port->CRL |= (1 << (bit+2);
-    }else{
-        port->CRL &= ~(0xF) << bit;
-        port->CRL |= (1 << (bit+2);
-    }
+
+void Port_IO_Set(GPIO_TypeDef * Port, u8 Broche) {
+	Port->ODR = Port->ODR & (0x01 << Broche) ;
+} 
+
+void Port_IO_Reset(GPIO_TypeDef * Port, u8 Broche) {
+	Port->BSRR = Port->BSRR & (0x01 << (Broche+16) ) ;
 }
 
-void Port_IO_Set(GPIO_TypeDef* port, u8 broche){
-    port->A
+void Port_IO_Blink(GPIO_TypeDef * Port, u8 Broche) {
+   Port->ODR ^= (0x01 << Broche);
+}
+
+unsigned int Port_IO_Read(GPIO_TypeDef * Port, u8 Broche) {
+	return (Port->IDR >> Broche) & 0x01 ;
+}
