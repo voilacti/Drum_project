@@ -14,8 +14,8 @@ char Port_IO_Init_Output( GPIO_TypeDef * Port, u8 Broche) {
 	}
 	else {
 		Broche -= 8 ;
-		Port->CRH = Port->CRH & ~(0xF << (Broche*4)) ;
-		Port->CRH = Port->CRH | (0x01 << (Broche*4)) ; 	
+		Port->CRH &=  ~(0xF << (Broche*4)) ;
+		Port->CRH |=  (0x01 << (Broche*4)) ; 	
 	}
 	return 0 ;
 }
@@ -27,11 +27,28 @@ char Port_IO_Init_Input( GPIO_TypeDef * Port, u8 Broche) {
 	}
 	else {
 		Broche-= 8 ;
-		Port->CRL = Port->CRH & ~(0xF << (Broche*4)) ;
-		Port->CRL = Port->CRH | (0x01 << ((Broche*4)+2)) ; 	
+		Port->CRL &= ~(0xF << (Broche*4)) ;
+		Port->CRL |= (0x01 << ((Broche*4)+2)) ; 	
 	}
 	return 0 ;
 }
+
+
+char Port_IO_Init_Alter_PP(GPIO_TypeDef * Port, u8 Broche){
+		if (Broche <= 7) {
+		Port->CRL &= ~(0xF << (Broche*4)) ;
+		Port->CRL |= (0b1001 << (Broche*4)) ; 	
+	}
+	else {
+		Broche-= 8 ;
+		Port->CRL &= ~(0xF << (Broche*4)) ;
+		Port->CRL |= 0b1001 << (Broche*4) ; 	
+	}
+	return 0 ;
+	
+	
+}
+
 
 void Port_IO_Set(GPIO_TypeDef * Port, u8 Broche) {
 	Port->ODR = Port->ODR & (0x01 << Broche) ;
