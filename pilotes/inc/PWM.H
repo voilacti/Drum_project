@@ -6,30 +6,23 @@
 #include "timer_1234.h"
 
 /** 
-* Configure l'PWM
-* Il faut activer APB pont du timer et GPIO sortant
+* Configure l'PWM example
+*   RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
+    RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;
+    Port_IO_Init_Alter_PP(GPIOA,1);
+    PWM_Init(TIM2,2,1);
+    PWM_set_Cycle(TIM2,2,0.3);
 **/
 
 
-
-/**In upcounting, channel 1 is active as long as TIMx_CNT<TIMx_CCR1
-* else inactive.
-**/
-#define PWM_MODE_1 0b110
-
-
-// Cette fonction initialise la voie specifie du timer voulu en PWM.
-// La frequence souhaitee est passee en parametre.
-// La fonction renvoie un entier qui correspond a la resolution de la PWM pour
-// pouvoir ensuite regler les rapports cycliques.
-//
-// 3 Timer "general Purpose", TIM2, TIM3 et TIM4 + TIM1
-// Chacun d'entre eux dispose de 4 voies de sorties numerotees de 1 a 4
-// Mapping des IO:
-// TIM1_CH1 - PA08 TM2_CH1_ETR - PA0 TM3_CH1 - PA6 TIM4_CH1 - PB6
-// TIM1_CH1 - PA09 TM2_CH2 - PA1 TM3_CH2 - PA7 TIM4_CH2 - PB7
-// TIM1_CH1 - PA10 TM2_CH3 - PA2 TM3_CH3 - PB0 TIM4_CH3 - PB8
-// TIM1_CH4 - PA11 TM2_CH4 - PA3 TM3_CH4 - PB1 TIM4_CH4 - PB9
+/* @param TIM2 (CH)2 freq_pwm_souhaite
+* @return resolution(arr)
+*/
+/* Mapping des IO et Arduino: (Configurer en Alter PP)
+* TIM1_CH1 PA8 D7 * CH2 PA9 D8 *CH3 PA10 D2
+* TIM2_CH1 PA0 A0 * CH2 PA1 A1 
+* TIM3_CH1 PA6 D12 * CH2 PA9 D11
+*/
 vu16 PWM_Init(TIM_TypeDef *Timer, char Voie, float Frequence_PWM_hz);
 
 /**

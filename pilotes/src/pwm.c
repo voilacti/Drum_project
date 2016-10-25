@@ -1,5 +1,9 @@
 #include  "pwm.h"
 
+/**In upcounting, channel 1 is active as long as TIMx_CNT<TIMx_CCR1
+* else inactive.
+**/
+#define PWM_MODE_1 0b110
 
 vu16 PWM_Init(TIM_TypeDef *Timer, char Voie, float Frequence_PWM_hz){
     //u32 freq = Timer_1234_Init( Timer, Frequence_PWM_Khz ) ;
