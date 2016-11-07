@@ -1,0 +1,11 @@
+.\Obj\main.o: main.c
+.\Obj\main.o: C:\Keil\ARM\Inc\ST\STM32F10x\stm32f10x.h
+.\Obj\main.o: C:\Keil\ARM\CMSIS\Include\core_cm3.h
+.\Obj\main.o: C:\Keil\ARM\ARMCC\bin\..\include\stdint.h
+.\Obj\main.o: C:\Keil\ARM\CMSIS\Include\core_cmInstr.h
+.\Obj\main.o: C:\Keil\ARM\CMSIS\Include\core_cmFunc.h
+.\Obj\main.o: C:\Keil\ARM\Inc\ST\STM32F10x\system_stm32f10x.h
+.\Obj\main.o: ..\..\Drum_project\pilotes\inc\pwm.h
+.\Obj\main.o: ..\..\Drum_project\pilotes\inc\clock.h
+.\Obj\main.o: ..\..\Drum_project\pilotes\inc\timer_1234.h
+.\Obj\main.o: ..\..\Drum_project\pilotes\inc\gpio.h
