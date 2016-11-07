@@ -2,13 +2,10 @@
 #define ADC_H
 
 #include "stm32f10x.h"
-#include "clock.h"
 
-/** 
-* Configure l'ADC
-**/
-void Init_ADC_Single_Conv(ADC_TypeDef * ADC) ;
+typedef void (*ADC_Handler)(u16 data);
 
-u16 ADC_read_data(ADC_TypeDef * ADC, char channel);
+void ADC_Init(ADC_TypeDef* ADC, u8 priority, ADC_Handler handler);
+void ADC_Start(ADC_TypeDef* ADC);
 
-#endif 
+#endif

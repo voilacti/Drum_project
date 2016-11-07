@@ -1,17 +1,32 @@
 #ifndef GPIO_H
-#define GPIO_H 
+#define GPIO_H
 
-#include "STM32F10X.h"
+#include "stm32f10x.h"
 
+typedef enum Mode {
+	Input = 0x0,
+	Output10MHz = 0x4,
+	Output2MHz = 0x8,
+	Output50MHz = 0xf
+} Mode;
 
-char Port_IO_Init_Output( GPIO_TypeDef * Port, u8 Broche) ;
-char Port_IO_Init_Input( GPIO_TypeDef * Port, u8 Broche) ;
-char Port_IO_Init_Alter_PP(GPIO_TypeDef * Port, u8 Broche) ;
-void Port_IO_Set(GPIO_TypeDef * Port, u8 Broche) ;
-void Port_IO_Reset(GPIO_TypeDef * Port, u8 Broche) ;
-void Port_IO_Blink(GPIO_TypeDef * Port, u8 Broche) ;
-unsigned int Port_IO_Read(GPIO_TypeDef * Port, u8 Broche) ;
+typedef enum Config {
+	Analog = 0x0,
+	Floating = 0x1,
+	PullUpPullDown = 0x2,
+	Reserved = 0x3,
+	GenPushPull = Analog,
+	GenOpenDrain = Floating,
+	AltPushPull = PullUpPullDown,
+	AltOpenDrain = Reserved
+} Config;
 
+void GPIO_Init(GPIO_TypeDef* port);
+void GPIO_Config(GPIO_TypeDef* port, u8 pin, Mode mode, Config config);
+void GPIO_Set(GPIO_TypeDef* port, u8 pin);
+void GPIO_Reset(GPIO_TypeDef* port, u8 pin);
+void GPIO_Toggle(GPIO_TypeDef* port, u8 pin);
+unsigned int GPIO_Read(GPIO_TypeDef* port, u8 pin);
 
+#endif
 
-#endif 
