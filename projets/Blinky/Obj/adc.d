@@ -1,9 +1,0 @@
-.\Obj\adc.o: ..\..\pilotes\src\adc.c
-.\Obj\adc.o: ..\..\pilotes\inc\adc.h
-.\Obj\adc.o: C:\Keil\ARM\Inc\ST\STM32F10x\stm32f10x.h
-.\Obj\adc.o: C:\Keil\ARM\CMSIS\Include\core_cm3.h
-.\Obj\adc.o: C:\Keil\ARM\ARMCC\bin\..\include\stdint.h
-.\Obj\adc.o: C:\Keil\ARM\CMSIS\Include\core_cmInstr.h
-.\Obj\adc.o: C:\Keil\ARM\CMSIS\Include\core_cmFunc.h
-.\Obj\adc.o: C:\Keil\ARM\Inc\ST\STM32F10x\system_stm32f10x.h
-.\Obj\adc.o: ..\..\pilotes\inc\clock.h
