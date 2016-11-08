@@ -1,5 +1,5 @@
 #include  "pwm.h"
-
+#include "timer_1234.h"
 /**In upcounting, channel 1 is active as long as TIMx_CNT<TIMx_CCR1
 * else inactive.
 **/
@@ -9,12 +9,12 @@ vu16 PWM_Init(TIM_TypeDef *Timer, char Voie, float Frequence_PWM_hz){
     //u32 freq = Timer_1234_Init( Timer, Frequence_PWM_Khz ) ;
     vu16 resolution;
     //Timer_1234_Init(Timer, Frequence_PWM_Khz*1000 );
-    Timer_1234_Init(Timer, Frequence_PWM_hz );
+    timer_1234_init(Timer, Frequence_PWM_hz );
     resolution = Timer->ARR + 1;
     
     if (Voie == 1){
-        Timer->CCMR1 &= ~TIM_CCMR1_OC1M  ;
-        Timer->CCMR1 |= (PWM_MODE_1)<< 4 ;//mode 110 
+        Timer->CCMR1 &= ~TIM_CCMR1_OC1M  ; // Mise à 0 du mode 
+        Timer->CCMR1 |= (PWM_MODE_1)<< 4 ;//mode 110 : channel is active as long as TIMx_CNT<TIMx_CCR1
         Timer->CCMR1 |= TIM_CCMR1_OC1PE ;//enable preload
         Timer->CCER &= ~TIM_CCER_CC1P;//polarity active high
         Timer->CCER |= TIM_CCER_CC1E;
@@ -64,5 +64,3 @@ void PWM_set_Cycle(TIM_TypeDef *Timer, char Voie, float rapport_cyclique){
     }
         
 }
-
-
