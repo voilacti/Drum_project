@@ -9,7 +9,7 @@ vu16 PWM_Init(TIM_TypeDef *Timer, char Voie, float Frequence_PWM_hz){
     //u32 freq = Timer_1234_Init( Timer, Frequence_PWM_Khz ) ;
     vu16 resolution;
     //Timer_1234_Init(Timer, Frequence_PWM_Khz*1000 );
-    timer_1234_init(Timer, Frequence_PWM_hz );
+    Timer_1234_Init(Timer, Frequence_PWM_hz );
     resolution = Timer->ARR + 1;
     
     if (Voie == 1){
