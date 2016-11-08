@@ -7,8 +7,8 @@
 /** 
 * Configure l'ADC
 **/
-void Init_ADC_Single_Conv(ADC_TypeDef * ADC) ;
+void Init_ADC_Single_Conv(ADC_TypeDef * ADC, char channel) ;
 
-u16 ADC_read_data(ADC_TypeDef * ADC, char channel);
+u16 ADC_read_data(ADC_TypeDef * ADC);
 
 #endif 
