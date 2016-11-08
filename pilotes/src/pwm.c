@@ -28,14 +28,14 @@ vu16 PWM_Init(TIM_TypeDef *Timer, char Voie, float Frequence_PWM_hz){
         Timer->CCMR2 &= ~TIM_CCMR2_OC3M  ;
         Timer->CCMR2 |= (PWM_MODE_1)<< 4 ;
         Timer->CCMR2 |= TIM_CCMR2_OC3PE ;
-        Timer->CCER &= ~TIM_CCER_CC2P;
-        Timer->CCER |= TIM_CCER_CC2E;
+        Timer->CCER &= ~TIM_CCER_CC3P;
+        Timer->CCER |= TIM_CCER_CC3E;
     }else if (Voie == 4){
         Timer->CCMR2 &= ~TIM_CCMR2_OC4M ;
         Timer->CCMR2 |= (PWM_MODE_1)<< 12 ;
         Timer->CCMR2 |= TIM_CCMR2_OC4PE ;
-        Timer->CCER &= ~TIM_CCER_CC2P;
-        Timer->CCER |= TIM_CCER_CC2E;
+        Timer->CCER &= ~TIM_CCER_CC4P;
+        Timer->CCER |= TIM_CCER_CC4E;
     }
     
     Timer->CR1 |= TIM_CR1_ARPE;

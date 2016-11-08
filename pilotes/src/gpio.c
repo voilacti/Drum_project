@@ -29,7 +29,7 @@ char Port_IO_Init_Input( GPIO_TypeDef * Port, u8 Broche) {
 
 
 char Port_IO_Init_Alter_PP(GPIO_TypeDef * Port, u8 Broche){
-		if (Broche <= 7) {
+	if (Broche <= 7) {
 		Port->CRL &= ~(0xF << (Broche*4)) ;
 		Port->CRL |= (0x9 << (Broche*4)) ; 	
 	}
