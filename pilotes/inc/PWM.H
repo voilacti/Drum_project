@@ -22,6 +22,7 @@
 * TIM1_CH1 PA8 D7 * CH2 PA9 D8 *CH3 PA10 D2
 * TIM2_CH1 PA0 A0 * CH2 PA1 A1 
 * TIM3_CH1 PA6 D12 / PB4 D5 * CH2 PA9 D11 / PB5 D4
+* TIM4_CH3 PB8 D15/I2C / TIM4_CH4 PB9 D14/I2C
 */
 vu16 PWM_Init(TIM_TypeDef *Timer, char Voie, float Frequence_PWM_hz);
 
