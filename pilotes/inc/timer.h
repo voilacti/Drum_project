@@ -1,5 +1,5 @@
-#ifndef TIMER_1234_H
-#define TIMER_1234_H
+#ifndef TIMER_H
+#define TIMER_H
 
 #include "stm32f10x.h"
  
